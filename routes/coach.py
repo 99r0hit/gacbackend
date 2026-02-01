@@ -1,9 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from models import AttendanceRecord, SessionRecord
 from db import supabase
 from auth import authenticate, require_role
 
-router = APIRouter()
+router = APIRouter(prefix="/coach", tags=["Coach"])
 
 @router.post("/attendance")
 def mark_attendance(payload: dict, email: str, password: str):
@@ -93,5 +93,6 @@ def get_students(branch_id: str, email: str, password: str):
         .execute()
 
     return students.data
+
 
 
