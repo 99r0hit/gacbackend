@@ -11,9 +11,10 @@ SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_KEY")
 if not SUPABASE_URL:
     raise RuntimeError("SUPABASE_URL is not set")
 
-if not SUPABASE_KEY:
+if not SUPABASE_SERVICE_KEY:
     raise RuntimeError("SUPABASE_KEY is not set")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
 
 
