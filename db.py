@@ -1,21 +1,53 @@
 import os
-from supabase import create_client
-from dotenv import load_dotenv
+import httpx
+from postgrest import SyncPostgrestClient
+from storage3 import SyncStorageClient
+from gotrue import SyncGoTrueClient
 
-# Load .env locally (Render ignores .env anyway)
-load_dotenv()
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing Supabase environment variables")
 
-if not SUPABASE_URL:
-    raise RuntimeError("SUPABASE_URL is not set")
+# Manually create components
+postgrest = SyncPostgrestClient(
+    base_url=SUPABASE_URL + "/rest/v1",
+    headers={
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}"
+    }
+)
 
-if not SUPABASE_KEY:
-    raise RuntimeError("SUPABASE_KEY is not set")
+storage = SyncStorageClient(
+    base_url=SUPABASE_URL + "/storage/v1",
+    headers={
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}"
+    }
+)
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+auth = SyncGoTrueClient({
+    "url": SUPABASE_URL + "/auth/v1",
+    "headers": {
+        "apiKey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}"
+    },
+    "auto_refresh_token": False,
+    "persist_session": False
+})
 
+# Create a simple wrapper class
+class SimpleSupabaseClient:
+    def __init__(self):
+        self.postgrest = postgrest
+        self.storage = storage
+        self.auth = auth
+    
+    def table(self, table_name):
+        return self.postgrest.from_(table_name)
+    
+    def from_(self, table_name):
+        return self.table(table_name)
 
-
-
+supabase = SimpleSupabaseClient()
