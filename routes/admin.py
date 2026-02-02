@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from models import CreateUser, CreateBranch, CreateBatch
 from db import supabase
 from auth import authenticate, require_role
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -135,5 +136,6 @@ def get_assignments(email: str, password: str):
     ).execute()
 
     return res.data
+
 
 
