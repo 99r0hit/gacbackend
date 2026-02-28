@@ -8,6 +8,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "https://www.gambitchess.info",
         "https://gcaapp.vercel.app",
     ],
     allow_origin_regex=r"https://.*\.(vercel\.app|app\.github\.dev)",
@@ -19,3 +20,4 @@ app.add_middleware(
 app.include_router(common.router)
 app.include_router(admin.router, prefix="/admin")
 app.include_router(coach.router, prefix="/coach")
+
